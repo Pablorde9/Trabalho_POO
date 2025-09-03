@@ -74,4 +74,8 @@ public enum Cartas {
     public int getForca() {
         return forca;
     }
+
+    public String getTudo() {
+        return this.valor + " de " + this.naipe;
+    }
 }

@@ -40,6 +40,11 @@ class MenuInterface {
     private JComboBox<Object> ldupla1;
     private JComboBox<Object> ldupla2;
 
+    private JFrame frameQueda;
+    private JPanel painelQueda;
+    private GridBagConstraints alinhamentoQueda;
+    private Queda queda;
+
     public MenuInterface() {
 
         /* ============================================ MENU GUI ===================================== */
@@ -171,7 +176,7 @@ class MenuInterface {
 
 
         frameJogo = new JFrame("Novo Jogo");
-        frameDupla.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        frameJogo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         novoJogoLabel = new JLabel("Escolha as duplas que irao jogar:");
 
@@ -214,6 +219,23 @@ class MenuInterface {
         frameJogo.add(painelJogo);
         frameJogo.setSize(500, 400);
         frameJogo.setLocationRelativeTo(null);
+
+        /* ============================================ QUEDA GUI =============================================*/
+
+        frameQueda = new JFrame("TRUCO");
+        frameQueda.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+        painelQueda = new JPanel();
+        painelQueda.setLayout(new GridBagLayout());
+
+        alinhamentoQueda = new GridBagConstraints();
+        alinhamentoQueda.gridx = 0;
+        alinhamentoQueda.gridy = 0;
+        alinhamentoQueda.insets = new Insets(10, 0, 10, 0);
+
+        frameQueda.add(painelQueda);
+        frameQueda.setSize(800, 800);
+        frameQueda.setLocationRelativeTo(null);
 
         /* ================================= FUNCIONALIDADES ===================================== */
 
@@ -318,6 +340,10 @@ class MenuInterface {
                     Dupla dupla2 = (Dupla) ldupla2.getSelectedItem();
                     JOptionPane.showMessageDialog(frameDupla,
                             "Duplas" + dupla1 + " e " + dupla2 + " irao jogar!");
+
+                    queda = new Queda(dupla1, dupla2);
+                    queda.iniciarQueda();
+                    frameQueda.setVisible(true);
                 } catch (CampoVazioException er) {
                     JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage() + " dupla");
                 } catch(MembroDuplicadoException er) {

@@ -30,18 +30,29 @@ class MenuInterface {
     private JLabel novaDuplaLabel;
     private Duplas listaDuplas;
 
+    private JFrame frameJogo;
+    private JPanel painelJogo;
+    private JButton novoJogo;
+    private JLabel novoJogoLabel;
+    private GridBagConstraints alinhamentoJogo;
+    private JButton fecharJogo;
+    private JButton iniciarJogo;
+    private JComboBox<Object> ldupla1;
+    private JComboBox<Object> ldupla2;
+
     public MenuInterface() {
 
-        /*
-         * ============================================ MENU GUI
-         * ==============================================================
-         */
+        /* ============================================ MENU GUI ===================================== */
 
         frameMenu = new JFrame("MENU");
         frameMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         novoJogador = new JButton("Cadastrar Jogador");
         novaDupla = new JButton("Cadastrar Dupla");
+        novoJogo = new JButton("Iniciar Jogo");
+
+        novaDupla.setPreferredSize(new Dimension(novoJogador.getPreferredSize()));
+        novoJogo.setPreferredSize(new Dimension(novoJogador.getPreferredSize()));
 
         painelMenu = new JPanel();
         painelMenu.setLayout(new GridBagLayout());
@@ -57,15 +68,16 @@ class MenuInterface {
         alinhamentoMenu.insets = new Insets(0, 0, 10, 0);
         painelMenu.add(novaDupla, alinhamentoMenu);
 
+        alinhamentoMenu.gridy = 2;
+        alinhamentoMenu.insets = new Insets(0, 0, 10, 0);
+        painelMenu.add(novoJogo, alinhamentoMenu);
+
         frameMenu.add(painelMenu);
         frameMenu.setSize(300, 400);
         frameMenu.setLocationRelativeTo(null);
         frameMenu.setVisible(true);
 
-        /*
-         * ============================================ NOVO JOGADOR GUI
-         * ==============================================================
-         */
+        /* ==================================== NOVO JOGADOR GUI ==================================================*/
 
         listaJogadores = new Jogadores();
 
@@ -106,10 +118,7 @@ class MenuInterface {
         frameJogador.setSize(500, 400);
         frameJogador.setLocationRelativeTo(null);
 
-        /*
-         * ============================================ NOVA DUPLA GUI
-         * ==============================================================
-         */
+        /* ============================================ NOVA DUPLA GUI =============================================*/
 
         listaDuplas = new Duplas();
 
@@ -158,10 +167,55 @@ class MenuInterface {
         frameDupla.setSize(500, 400);
         frameDupla.setLocationRelativeTo(null);
 
-        /*
-         * ============================================ FUNCIONALIDADES
-         * ==============================================================
-         */
+        /* ============================================ NOVO JOGO GUI =============================================*/
+
+
+        frameJogo = new JFrame("Novo Jogo");
+        frameDupla.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+        novoJogoLabel = new JLabel("Escolha as duplas que irao jogar:");
+
+        ldupla1 = new JComboBox<>();
+        ldupla1.addItem("Selecione a primeira dupla");
+        ldupla1.setPreferredSize(new Dimension(300, ldupla1.getPreferredSize().height));
+
+        ldupla2 = new JComboBox<>();
+        ldupla2.addItem("Selecione a segunda dupla");
+        ldupla2.setPreferredSize(new Dimension(300, ldupla2.getPreferredSize().height));
+
+        iniciarJogo = new JButton("Iniciar");
+        fecharJogo = new JButton("Voltar");
+
+        painelJogo = new JPanel();
+        painelJogo.setLayout(new GridBagLayout());
+
+        alinhamentoJogo = new GridBagConstraints();
+        alinhamentoJogo.gridx = 0;
+        alinhamentoJogo.gridy = 0;
+        alinhamentoJogo.insets = new Insets(10, 0, 10, 0);
+
+        painelJogo.add(novoJogoLabel, alinhamentoJogo);
+
+        alinhamentoJogo.gridy = 1;
+        alinhamentoJogo.insets = new Insets(0, 0, 10, 0);
+        painelJogo.add(ldupla1, alinhamentoJogo);
+
+        alinhamentoJogo.gridy = 2;
+        painelJogo.add(ldupla2, alinhamentoJogo);
+
+        alinhamentoJogo.gridy = 3;
+        alinhamentoJogo.insets = new Insets(0, 0, 50, 0);
+        painelJogo.add(iniciarJogo, alinhamentoJogo);
+
+        alinhamentoJogo.gridy = 4;
+        alinhamentoJogo.insets = new Insets(100, 0, 0, 0);
+        painelJogo.add(fecharJogo, alinhamentoJogo);
+
+        frameJogo.add(painelJogo);
+        frameJogo.setSize(500, 400);
+        frameJogo.setLocationRelativeTo(null);
+
+        /* ================================= FUNCIONALIDADES ===================================== */
 
         novoJogador.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -217,24 +271,60 @@ class MenuInterface {
                 try {
                     campoPlaceholder(duplaJ1, "primeiro");
                     campoPlaceholder(duplaJ2, "segundo");
+                    membroDuplicado(duplaJ2, duplaJ1);
                     Jogador jogador1 = (Jogador) duplaJ1.getSelectedItem();
                     Jogador jogador2 = (Jogador) duplaJ2.getSelectedItem();
-                    if (jogador1.equals(jogador2)) {
-                        JOptionPane.showMessageDialog(frameDupla,
-                                "Erro! Um jogador não pode formar uma dupla consigo mesmo.");
-                        return;
-                    }
-
-                    listaDuplas.add(new Dupla(jogador1, jogador2));
+                    Dupla dupla = new Dupla(jogador1, jogador2);
+                    listaDuplas.add(dupla);
                     JOptionPane.showMessageDialog(frameDupla,
                             "Dupla " + jogador1 + " e " + jogador2 + " cadastrada com sucesso!");
+                    ldupla1.addItem(dupla);
+                    ldupla2.addItem(dupla);
                 } catch (CampoVazioException er) {
                     JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage());
+                } catch(MembroDuplicadoException er) {
+                    JOptionPane.showMessageDialog(frameDupla, "Erro! Selecione jogadores diferentes");
                 } catch (CadastroRepetidoException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage());
+                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage() + " jogador");
                 } finally {
                     voltaPlaceholder(duplaJ1);
                     voltaPlaceholder(duplaJ2);
+                }
+
+            }
+        });
+
+        novoJogo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frameJogo.setVisible(true);
+
+            }
+        });
+
+        fecharJogo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                frameJogo.setVisible(false);
+
+            }
+        });
+
+        iniciarJogo.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    campoPlaceholder(ldupla1, "primeira");
+                    campoPlaceholder(ldupla2, "segunda");
+                    membroDuplicado(ldupla2, ldupla1);
+                    Dupla dupla1 = (Dupla) ldupla1.getSelectedItem();
+                    Dupla dupla2 = (Dupla) ldupla2.getSelectedItem();
+                    JOptionPane.showMessageDialog(frameDupla,
+                            "Duplas" + dupla1 + " e " + dupla2 + " irao jogar!");
+                } catch (CampoVazioException er) {
+                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage() + " dupla");
+                } catch(MembroDuplicadoException er) {
+                    JOptionPane.showMessageDialog(frameDupla, "Erro! Selecione duplas diferentes");
+                } finally {
+                    voltaPlaceholder(ldupla1);
+                    voltaPlaceholder(ldupla2);
                 }
 
             }
@@ -254,7 +344,11 @@ class MenuInterface {
     // checa se o menu suspenso(JComboBox) esta no placeholder
     void campoPlaceholder(JComboBox<Object> lista, String nmr) throws CampoVazioException {
         if (lista.getSelectedIndex() == 0)
-            throw new CampoVazioException("Selecione o " + nmr + " jogador");
+            throw new CampoVazioException("Selecione a " + nmr);
+    }
+
+    void membroDuplicado(JComboBox<Object> e1, JComboBox<Object> e2) throws MembroDuplicadoException {
+        if (e1.getSelectedItem().equals(e2.getSelectedItem())) throw new MembroDuplicadoException("");
     }
 
     void voltaPlaceholder(JComboBox<Object> lista) {

@@ -62,6 +62,7 @@ class Dupla {
 
     @Override
     public String toString() {
-        return "Dupla [" + j1.getNome() + " e " + j2.getNome() + "]";
+        return "[" + j1.getNome() + " e " + j2.getNome() + "]";
     }
+
 }

@@ -9,3 +9,9 @@ class CampoVazioException extends Exception {
         super(msg);
     }
 }
+
+class MembroDuplicadoException extends Exception {
+    public MembroDuplicadoException(String msg) {
+        super(msg);
+    }
+}

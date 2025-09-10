@@ -26,16 +26,34 @@ class Dupla {
     private int quedasT;
     private int tentos;
     private int quedasG;
+    private int jogos;
 
     public Dupla(Jogador n1, Jogador n2) {
         j1 = n1;
         j2 = n2;
         quedasT = 0;
         quedasG = 0;
+        tentos = 0;
+        jogos = 0;
     }
 
     public boolean contemJogador(Jogador jogador) {
         return this.j1.equals(jogador) || this.j2.equals(jogador);
+    }
+
+    void zerarTentos() {
+        tentos = 0;
+    }
+    void zerarJogos() {
+        jogos = 0;
+    }
+
+    void incrementaTentos(int valor) {
+        tentos += valor;
+    }
+
+    void incrementaJogos() {
+        jogos += 1;
     }
 
     void attQuedas(boolean ganha) {
@@ -58,6 +76,14 @@ class Dupla {
 
     public int getQuedasG() {
         return quedasG;
+    }
+
+    public int getTentos() {
+        return tentos;
+    }
+
+    public int getjogos() {
+        return jogos;
     }
 
     @Override

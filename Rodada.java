@@ -1,85 +1,52 @@
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.*;
-import java.awt.*;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-
-class stringtoGUI {
-    String text;
-
-    public stringtoGUI(String txt) {
-        text = txt;
-    }
-
-    void copy(String txt) {
-        text = txt;
-    }
-
-    String getText() {
-        return text;
-    }
-}
-
-class inttoGUI {
-    int valor;
-
-    public inttoGUI(int v) {
-        valor = v;
-    }
-
-    void copy(int v) {
-        valor = v;
-    }
-
-    int getValor() {
-        return valor;
-    }
-}
-
-
-
 public class Rodada {
+
+    // controle do jogo
+    private Jogo jogo; // referencia o jogo superior
     private Dupla dupla1;
     private Dupla dupla2;
-    int[] vazas;
     private List<Jogador> ordemJogadores;
-    private Baralho baralho = new Baralho();
-    int jogador_primeiro = 0;
-    private int tentos_mao = 1; // tentos que a mao ta valendo
-    private Boolean it_loop = true;
+    private Baralho baralho;
 
+    // controle da rodada
+    private int vazaAtual;
+    private int jogadorVezIndice;
+    private int tentosDaMao;
+    private int[] vazas; // 0: Empate, 1: Dupla1, 2: Dupla2
+
+    // controle da vaza
+    private List<Jogador> jogadoresDaVaza;
+    private List<Cartas> cartasJogadasNaVaza;
+    private Cartas maiorCartaNaVaza;
+    private Jogador jogadorMaiorCarta;
 
     // elementos GUI
-    private JFrame frame;
-    private JLabel jgAtual;
-    private JLabel jg;
-    private JLabel maiorcarta;
-    private JPanel painel;
+    private JPanel painelPrincipal;
+    private JLabel jogadorDaVezRot;
+    private JLabel maiorCartaVazaRot;
+    private JComboBox<Cartas> cartasMaoGUI;
     private JButton jogarCarta;
     private JButton pedirTruco;
-    private JComboBox<Cartas> cartasMaoGUI;
-    private GridBagConstraints alinhamento;
 
-    public Rodada(Dupla dupla1, Dupla dupla2, List<Jogador> ordemJogadores, JFrame f) {
-        this.dupla1 = dupla1;
-        this.dupla2 = dupla2;
-        this.ordemJogadores = ordemJogadores;
+    public Rodada(Jogo jogo, Dupla d1, Dupla d2, List<Jogador> ordem, int primeiroJogadorId) {
+        this.jogo = jogo;
+        this.dupla1 = d1;
+        this.dupla2 = d2;
+        this.ordemJogadores = ordem;
+        this.jogadorVezIndice = primeiroJogadorId;
+
+        this.baralho = new Baralho();
+        this.tentosDaMao = 1;
         this.vazas = new int[3];
-        frame = f;
-        iniciarGUI();
-        frame.setVisible(true);
-    }
+        this.vazaAtual = 0;
 
-    public void jogarRodada() {
-        baralho = new Baralho();
+        iniciarGUI();
         distribuirCartas();
-        for (int i = 0; i < 3; i++) {
-            jogarVaza(i);
-        }
+        iniciarVaza();
     }
 
     private void distribuirCartas() {
@@ -91,209 +58,186 @@ public class Rodada {
         }
     }
 
-    // pedir truco e tambem 6 9 12
-    public void pedirTruco() {
-        if (this.tentos_mao == 1) {
-            this.tentos_mao = 3;
+    private void iniciarVaza() {
+        cartasJogadasNaVaza = new ArrayList<>();
+        jogadoresDaVaza = new ArrayList<>();
+        maiorCartaNaVaza = null;
+        jogadorMaiorCarta = null;
+        atualizarInterfaceParaProximoJogador();
+    }
+
+    // metodo que recebe a carta escolhida na interface
+    private void processarJogada() {
+        Jogador jogadorAtual = ordemJogadores.get(jogadorVezIndice);
+        Cartas cartaJogada = (Cartas) cartasMaoGUI.getSelectedItem();
+
+        if (cartaJogada == null)
+            return;
+
+        jogadorAtual.jogarCarta(cartaJogada);
+        cartasJogadasNaVaza.add(cartaJogada);
+        jogadoresDaVaza.add(jogadorAtual);
+
+        if (maiorCartaNaVaza == null || cartaJogada.getForca() > maiorCartaNaVaza.getForca()) { // checa se a carta
+                                                                                                // jogada eh a mais
+                                                                                                // forte
+            maiorCartaNaVaza = cartaJogada;
+            jogadorMaiorCarta = jogadorAtual;
+        }
+
+        if (cartasJogadasNaVaza.size() == 4) { // se foi jogadas todas as cartas bora pra proxima vaza
+            finalizarVaza();
         } else {
-            this.tentos_mao += 3;
+            jogadorVezIndice = (jogadorVezIndice + 1) % 4;
+            atualizarInterfaceParaProximoJogador();
         }
     }
 
-    private void jogarVaza(int vaza) {
-        Jogador[] jogadoresVaza = new Jogador[4];
-        Cartas[] cartasVaza = new Cartas[4];
-        int[] forcasVaza = new int[4];
-        inttoGUI maiorForcaGUI = new inttoGUI(0);
-
-        stringtoGUI maiorCarta = new stringtoGUI("");
-        stringtoGUI maiorJg = new stringtoGUI("");
-        for (int i = 0; i < 4; i++) {
-
-            inttoGUI iterador = new inttoGUI(i);
-            inttoGUI chegou_final = new inttoGUI(0);
-
-            cartasMaoGUI.removeAllItems();
-            int indiceJogadores = (jogador_primeiro + i) % 4;
-            Jogador jogadorAtual = this.ordemJogadores.get(indiceJogadores);
-
-            for(Cartas c : jogadorAtual.getMao()) {
-                cartasMaoGUI.addItem(c);
-            }
-            
-            
-            jgAtual.setText(jogadorAtual.getNome());
-            maiorcarta.setText("maior carta: " + maiorCarta.getText() + maiorJg.getText());
-
-            
-            jogarCarta.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    Cartas cartaJogada = (Cartas) cartasMaoGUI.getSelectedItem();
-
-                    jogadoresVaza[iterador.getValor()] = jogadorAtual;
-                    cartasVaza[iterador.getValor()] = cartaJogada;
-                    forcasVaza[iterador.getValor()] = cartaJogada.getForca();
-
-                    if(forcasVaza[iterador.getValor()] > maiorForcaGUI.getValor()) {maiorForcaGUI.copy(forcasVaza[iterador.getValor()]); maiorCarta.copy(cartaJogada.getTudo()); maiorJg.copy(("(" + jogadorAtual.getNome() + ")"));}
-
-                    jogadorAtual.jogarCarta(cartaJogada);
-                    chegou_final.copy(1);
-
-
-                }
-            });
-            
-            while(it_loop) {
-                if (chegou_final.getValor() == 1) break;
-            }
-
-        }
-        cartasMaoGUI.removeAllItems();
-
-        List<Jogador> forcaMaxima = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            if (forcasVaza[i] == maiorForcaGUI.getValor()) {
-                forcaMaxima.add(jogadoresVaza[i]);
+    private void finalizarVaza() {
+        List<Jogador> vencedoresVaza = new ArrayList<>();
+        for (int i = 0; i < cartasJogadasNaVaza.size(); i++) {
+            if (cartasJogadasNaVaza.get(i).getForca() == maiorCartaNaVaza.getForca()) {
+                vencedoresVaza.add(jogadoresDaVaza.get(i)); // pega os jogadores que jogaram as maiores cartas
             }
         }
-        if (forcaMaxima.size() == 1) {
-            Jogador vencedor = forcaMaxima.get(0);
-            atualizaVaza(vencedor, vaza);
-            this.jogador_primeiro = this.ordemJogadores.indexOf(vencedor);
+
+        boolean empate = false;
+        if (vencedoresVaza.size() > 1) {
+            Dupla d1 = encontrarDupla(vencedoresVaza.get(0));
+            Dupla d2 = encontrarDupla(vencedoresVaza.get(1));
+
+            // tem mais de um vencedor e eles nao sao da mesma dupla
+            if (!d1.equals(d2)) {
+                empate = true;
+            }
+        }
+        if (empate) {
+            vazas[vazaAtual] = 0; // se deu emparte
         } else {
-            // varios jogadores jogaram grande
-            Dupla primeiraDupla = encontrarDupla(forcaMaxima.get(0));
-            boolean empate = false;
-            for (Jogador jogador : forcaMaxima) {
-                if (!primeiraDupla.contemJogador(jogador)) {
-                    empate = true; // tem um jogador de outra dupla que jogou grande
-                    break;
-                }
+            Dupla vencedora = encontrarDupla(jogadorMaiorCarta);
+            vazas[vazaAtual] = (vencedora == dupla1) ? 1 : 2; // colocar o numero da dupla que ganhou a vaza
+            jogadorVezIndice = ordemJogadores.indexOf(jogadorMaiorCarta); // o proximo jogador eh o que ganhou
+        }
+        vazaAtual++;
+        Dupla vencedorRodada = getVencedorDaRodada();
+        if (vencedorRodada != null || vazaAtual == 3) {
+            if (vencedorRodada == null) {
+                vencedorRodada = (encontrarDupla(ordemJogadores.get(0)) == dupla1) ? dupla2 : dupla1;
             }
-
-            if (empate) {
-                this.vazas[vaza] = 0;
-
-            } else {
-
-                Jogador vencedorDaDupla = forcaMaxima.get(0);
-                atualizaVaza(vencedorDaDupla, vaza);
-                this.jogador_primeiro = this.ordemJogadores.indexOf(vencedorDaDupla);
-            }
+            jogo.rodadaTerminada(vencedorRodada, tentosDaMao);
+        } else {
+            iniciarVaza();
         }
     }
 
-    private void atualizaVaza(Jogador jogador, int i) {
-        if (this.dupla1.contemJogador(jogador)) {
-            this.vazas[i] = 1;
+    private Dupla getVencedorDaRodada() {
+        int vitoriasD1 = 0, vitoriasD2 = 0;
+        for (int i = 0; i < vazaAtual; i++) {
+            if (vazas[i] == 1)
+                vitoriasD1++;
+            if (vazas[i] == 2)
+                vitoriasD2++;
         }
-        if (this.dupla2.contemJogador(jogador)) {
-            this.vazas[i] = 2;
-        }
-    }
 
-    private Dupla encontrarDupla(Jogador jogador) {
-        if (this.dupla1.contemJogador(jogador)) {
-            return this.dupla1;
-        }
-        return this.dupla2;
-    }
+        if (vitoriasD1 >= 2)
+            return dupla1;
+        if (vitoriasD2 >= 2)
+            return dupla2;
 
-    // funcao para as superiores saberem quem ganhou a rodada
-    public Dupla getVencedorDaRodada() {
-        // Ganhou a primeira vaza e empatou a segunda
         if (vazas[0] == 1 && vazas[1] == 0)
             return dupla1;
         if (vazas[0] == 2 && vazas[1] == 0)
             return dupla2;
-
-        // Empatou a primeira vaza e ganhou a segunda
         if (vazas[0] == 0 && vazas[1] == 1)
             return dupla1;
         if (vazas[0] == 0 && vazas[1] == 2)
             return dupla2;
 
-        // ve quem chegou em 2 vitorias
-        int vitoriasDupla1 = 0;
-        int vitoriasDupla2 = 0;
-        for (int resultado : vazas) {
-            if (resultado == 1)
-                vitoriasDupla1++;
-            if (resultado == 2)
-                vitoriasDupla2++;
-        }
-        if (vitoriasDupla1 >= 2)
+        if (vazaAtual == 3 && vitoriasD1 > vitoriasD2)
             return dupla1;
-        if (vitoriasDupla2 >= 2)
+        if (vazaAtual == 3 && vitoriasD2 > vitoriasD1)
             return dupla2;
 
-        // se empatou na 3, quem ganhou a primeira ganha
-        if (vazas[0] == 1)
+        return null;
+    }
+
+    private Dupla encontrarDupla(Jogador jogador) {
+        if (dupla1.contemJogador(jogador)) {
             return dupla1;
-        if (vazas[0] == 2)
+        } else {
             return dupla2;
-
-        // empatou primeira e segunda, ganhou terceira
-        if(vazas[2] == 1) return dupla1;
-        if(vazas[2] == 2) return dupla2;
-
-        // se empatou tudo
-        if (vazas[0] == 0 && vazas[1] == 0 && vazas[2] == 0) {
-            // o cara que abriu que ganha
-            Jogador mao = this.ordemJogadores.get(0);
-            return encontrarDupla(mao);
         }
-        
-        return null; // se tudo der errado, tiver algum caso que nao cobri
     }
 
-    public int getTentosMao() {
-        return tentos_mao;
+    // metodo que vai ser usado pelo jogo
+    public JPanel getPainel() {
+        return painelPrincipal;
+    }
+    //--------------metodos graficos
+    private void atualizarInterfaceParaProximoJogador() {
+        Jogador jogadorAtual = ordemJogadores.get(jogadorVezIndice);
+        jogadorDaVezRot.setText("Vez de: " + jogadorAtual.getNome());
+
+        if (maiorCartaNaVaza != null) {
+            maiorCartaVazaRot.setText("Maior carta na vaza: " + maiorCartaNaVaza.toString());
+        } else {
+            maiorCartaVazaRot.setText("Seja o primeiro a jogar!");
+        }
+
+        cartasMaoGUI.removeAllItems();
+        for (Cartas c : jogadorAtual.getMao()) {
+            cartasMaoGUI.addItem(c);
+        }
     }
 
-    void iniciarGUI() {
-        jg = new JLabel("jogador atual:");
-        jg.setFont(new Font("Arial", Font.PLAIN, 13));
+    private void iniciarGUI() {
+        painelPrincipal = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(5, 5, 5, 5);
 
-        jgAtual = new JLabel();
-        jgAtual.setFont(new Font("Arial", Font.PLAIN, 16));
+        jogadorDaVezRot = new JLabel();
+        jogadorDaVezRot.setFont(new Font("Arial", Font.BOLD, 16));
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 2;
+        painelPrincipal.add(jogadorDaVezRot, c);
 
-        maiorcarta = new JLabel("maior carta: ");
-        maiorcarta.setFont(new Font("Arial", Font.BOLD, 12));
-
-        jogarCarta = new JButton("Jogar Carta");
-        pedirTruco = new JButton("Truco");
+        maiorCartaVazaRot = new JLabel();
+        c.gridy = 1;
+        painelPrincipal.add(maiorCartaVazaRot, c);
 
         cartasMaoGUI = new JComboBox<>();
-        cartasMaoGUI.setSize(100, 100);
-        
-        painel = new JPanel(new GridBagLayout());
-        GridBagConstraints alinhamento = new GridBagConstraints();
+        c.gridy = 2;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        painelPrincipal.add(cartasMaoGUI, c);
 
-        alinhamento.gridx = 0;
-        alinhamento.gridy = 0;
-        alinhamento.insets = new Insets(10, 0, 10, 0);
-        painel.add(jg, alinhamento);
+        jogarCarta = new JButton("Jogar Carta");
+        c.gridy = 3;
+        c.gridwidth = 1;
+        c.fill = GridBagConstraints.NONE;
+        painelPrincipal.add(jogarCarta, c);
 
-        alinhamento.gridy = 1;
-        painel.add(jgAtual, alinhamento);
+        pedirTruco = new JButton("TRUCO");
+        pedirTruco.setForeground(Color.RED);
+        c.gridx = 1;
+        painelPrincipal.add(pedirTruco, c);
 
-        alinhamento.gridy = 2;
-        painel.add(maiorcarta, alinhamento);
+        jogarCarta.addActionListener(e -> processarJogada());
+        pedirTruco.addActionListener(e -> {
+            int resposta = JOptionPane.showConfirmDialog(painelPrincipal,
+                    encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)) + ", aceita o TRUCO?",
+                    "Pedido de Truco", JOptionPane.YES_NO_OPTION);
 
-        alinhamento.gridy = 3;
-        painel.add(cartasMaoGUI, alinhamento);
-
-        alinhamento.gridy = 4;
-        painel.add(pedirTruco, alinhamento);
-
-        alinhamento.gridx = 1;
-        painel.add(jogarCarta, alinhamento);
-
-        frame.add(painel);
-        
-
+            if (resposta == JOptionPane.YES_OPTION) {
+                if (tentosDaMao == 1)
+                    tentosDaMao = 3;
+                else
+                    tentosDaMao += 3;
+                JOptionPane.showMessageDialog(painelPrincipal, "Truco aceito! A mão vale " + tentosDaMao + " pontos.");
+            } else {
+                JOptionPane.showMessageDialog(painelPrincipal, "Truco recusado!");
+                jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get(jogadorVezIndice)), 1);
+            }
+        });
     }
-
-
 }

@@ -3,7 +3,7 @@ import java.util.List;
 
 public class Jogador {
     private String nome;
-    private ArrayList<Cartas> mao;
+    private List<Cartas> mao;
 
     public Jogador(String n) {
         this.nome = n;
@@ -16,27 +16,8 @@ public class Jogador {
         }
     }
 
-    public void jogarCarta(Cartas carta) {     
-        int id = mao.indexOf(carta);
-        if(id == 2) id -= 1; else id += 1;
-
-        mao.set(mao.indexOf(carta), mao.get(id));
-    }
-
-    public Cartas maiorCarta() {
-        Cartas a = mao.get(0);
-        Cartas b = mao.get(1);
-        Cartas c = mao.get(2);
-
-        if (a.getForca() >= b.getForca() && a.getForca() >= c.getForca()) {
-            return a;
-        } else if (b.getForca() >= a.getForca() && b.getForca() >= c.getForca()) {
-            return b;
-
-        } else {
-            return c;
-        }
-
+    public void jogarCarta(Cartas carta) {
+        this.mao.remove(carta);
     }
 
     public void limparMao() {

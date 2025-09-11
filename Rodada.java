@@ -3,9 +3,8 @@ import java.util.List;
 
 public class Rodada {
     private Dupla dupla1;
-    private int ganhou_d1 = 0;
     private Dupla dupla2;
-    private int ganhou_d2 = 0;
+    int[] vazas;
     private List<Jogador> ordemJogadores;
     private Baralho baralho;
     int jogador_primeiro = 0;
@@ -16,6 +15,14 @@ public class Rodada {
         this.dupla2 = dupla2;
         this.ordemJogadores = ordemJogadores;
         this.baralho = baralho;
+        this.vazas = new int[3];
+    }
+
+    public void jogarRodada() {
+        distribuirCartas();
+        for (int i = 0; i < 3; i++) {
+            jogarVaza(i);
+        }
     }
 
     private void distribuirCartas() {
@@ -65,31 +72,37 @@ public class Rodada {
         }
         if (forcaMaxima.size() == 1) {
             Jogador vencedor = forcaMaxima.get(0);
-            atualizaVaza(vencedor);
+            atualizaVaza(vencedor, vaza);
             this.jogador_primeiro = this.ordemJogadores.indexOf(vencedor);
         } else {
+            // varios jogadores jogaram grande
             Dupla primeiraDupla = encontrarDupla(forcaMaxima.get(0));
             boolean empate = false;
-               for (Jogador jogador : forcaMaxima) {
-            if (!primeiraDupla.contemJogador(jogador)) {
-                empate = true; // testando se o jogador que jogou a carta forte eh da outra dupla
-                break;
+            for (Jogador jogador : forcaMaxima) {
+                if (!primeiraDupla.contemJogador(jogador)) {
+                    empate = true; // tem um jogador de outra dupla que jogou grande
+                    break;
+                }
             }
-        }
-        if (empate) {
-            if(vaza == 0){
-            }
-        }
-        }
 
+            if (empate) {
+                this.vazas[vaza] = 0;
+
+            } else {
+
+                Jogador vencedorDaDupla = forcaMaxima.get(0);
+                atualizaVaza(vencedorDaDupla, vaza);
+                this.jogador_primeiro = this.ordemJogadores.indexOf(vencedorDaDupla);
+            }
+        }
     }
 
-    private void atualizaVaza(Jogador jogador) {
+    private void atualizaVaza(Jogador jogador, int i) {
         if (this.dupla1.contemJogador(jogador)) {
-            this.ganhou_d1++;
+            this.vazas[i] = 1;
         }
         if (this.dupla2.contemJogador(jogador)) {
-            this.ganhou_d2++;
+            this.vazas[i] = 2;
         }
     }
 
@@ -99,4 +112,49 @@ public class Rodada {
         }
         return this.dupla2;
     }
+
+    // funcao para as superiores saberem quem ganhou a rodada
+    public Dupla getVencedorDaRodada() {
+        // Ganhou a primeira vaza e empatou a segunda
+        if (vazas[0] == 1 && vazas[1] == 0)
+            return dupla1;
+        if (vazas[0] == 2 && vazas[1] == 0)
+            return dupla2;
+
+        // Empatou a primeira vaza e ganhou a segunda
+        if (vazas[0] == 0 && vazas[1] == 1)
+            return dupla1;
+        if (vazas[0] == 0 && vazas[1] == 2)
+            return dupla2;
+
+        // ve quem chegou em 2 vitorias
+        int vitoriasDupla1 = 0;
+        int vitoriasDupla2 = 0;
+        for (int resultado : vazas) {
+            if (resultado == 1)
+                vitoriasDupla1++;
+            if (resultado == 2)
+                vitoriasDupla2++;
+        }
+        if (vitoriasDupla1 >= 2)
+            return dupla1;
+        if (vitoriasDupla2 >= 2)
+            return dupla2;
+
+        // se empatou na 3, quem ganhou a primeira ganha
+        if (vazas[0] == 1)
+            return dupla1;
+        if (vazas[0] == 2)
+            return dupla2;
+
+        // se empatou tudo
+        if (vazas[0] == 0 && vazas[1] == 0 && vazas[2] == 0) {
+            // o cara que abriu que ganha
+            Jogador mao = this.ordemJogadores.get(0);
+            return encontrarDupla(mao);
+        }
+
+        return null; // se tudo der errado, tiver algum caso que nao cobri
+    }
+
 }

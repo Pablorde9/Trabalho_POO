@@ -16,22 +16,17 @@ public class Jogador {
         }
     }
 
-    public void jogarCarta(Cartas carta) {        
-        mao.set(mao.indexOf(carta), null);
+    public void jogarCarta(Cartas carta) {     
+        int id = mao.indexOf(carta);
+        if(id == 2) id -= 1; else id += 1;
+
+        mao.set(mao.indexOf(carta), mao.get(id));
     }
 
     public Cartas maiorCarta() {
         Cartas a = mao.get(0);
         Cartas b = mao.get(1);
         Cartas c = mao.get(2);
-
-        if (a == null && b == null) return c;
-        if (a == null && c == null) return b;
-        if (b == null && c == null) return a;
-
-        if(a == null) a = b;
-        if (b == null) b = a;
-        if (c == null) c = a;
 
         if (a.getForca() >= b.getForca() && a.getForca() >= c.getForca()) {
             return a;

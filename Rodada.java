@@ -1,6 +1,47 @@
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.*;
+import java.awt.*;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+
+class stringtoGUI {
+    String text;
+
+    public stringtoGUI(String txt) {
+        text = txt;
+    }
+
+    void copy(String txt) {
+        text = txt;
+    }
+
+    String getText() {
+        return text;
+    }
+}
+
+class inttoGUI {
+    int valor;
+
+    public inttoGUI(int v) {
+        valor = v;
+    }
+
+    void copy(int v) {
+        valor = v;
+    }
+
+    int getValor() {
+        return valor;
+    }
+}
+
+
+
 public class Rodada {
     private Dupla dupla1;
     private Dupla dupla2;
@@ -9,12 +50,28 @@ public class Rodada {
     private Baralho baralho = new Baralho();
     int jogador_primeiro = 0;
     private int tentos_mao = 1; // tentos que a mao ta valendo
+    private Boolean it_loop = true;
 
-    public Rodada(Dupla dupla1, Dupla dupla2, List<Jogador> ordemJogadores) {
+
+    // elementos GUI
+    private JFrame frame;
+    private JLabel jgAtual;
+    private JLabel jg;
+    private JLabel maiorcarta;
+    private JPanel painel;
+    private JButton jogarCarta;
+    private JButton pedirTruco;
+    private JComboBox<Cartas> cartasMaoGUI;
+    private GridBagConstraints alinhamento;
+
+    public Rodada(Dupla dupla1, Dupla dupla2, List<Jogador> ordemJogadores, JFrame f) {
         this.dupla1 = dupla1;
         this.dupla2 = dupla2;
         this.ordemJogadores = ordemJogadores;
         this.vazas = new int[3];
+        frame = f;
+        iniciarGUI();
+        frame.setVisible(true);
     }
 
     public void jogarRodada() {
@@ -47,26 +104,55 @@ public class Rodada {
         Jogador[] jogadoresVaza = new Jogador[4];
         Cartas[] cartasVaza = new Cartas[4];
         int[] forcasVaza = new int[4];
+        inttoGUI maiorForcaGUI = new inttoGUI(0);
+
+        stringtoGUI maiorCarta = new stringtoGUI("");
+        stringtoGUI maiorJg = new stringtoGUI("");
         for (int i = 0; i < 4; i++) {
+
+            inttoGUI iterador = new inttoGUI(i);
+            inttoGUI chegou_final = new inttoGUI(0);
+
+            cartasMaoGUI.removeAllItems();
             int indiceJogadores = (jogador_primeiro + i) % 4;
             Jogador jogadorAtual = this.ordemJogadores.get(indiceJogadores);
 
-            Cartas cartaJogada = jogadorAtual.maiorCarta();
-            jogadorAtual.jogarCarta(cartaJogada);
-            jogadoresVaza[i] = jogadorAtual;
-            cartasVaza[i] = cartaJogada;
-            forcasVaza[i] = cartaJogada.getForca();
+            for(Cartas c : jogadorAtual.getMao()) {
+                cartasMaoGUI.addItem(c);
+            }
+            
+            
+            jgAtual.setText(jogadorAtual.getNome());
+            maiorcarta.setText("maior carta: " + maiorCarta.getText() + maiorJg.getText());
+
+            
+            jogarCarta.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    Cartas cartaJogada = (Cartas) cartasMaoGUI.getSelectedItem();
+
+                    jogadoresVaza[iterador.getValor()] = jogadorAtual;
+                    cartasVaza[iterador.getValor()] = cartaJogada;
+                    forcasVaza[iterador.getValor()] = cartaJogada.getForca();
+
+                    if(forcasVaza[iterador.getValor()] > maiorForcaGUI.getValor()) {maiorForcaGUI.copy(forcasVaza[iterador.getValor()]); maiorCarta.copy(cartaJogada.getTudo()); maiorJg.copy(("(" + jogadorAtual.getNome() + ")"));}
+
+                    jogadorAtual.jogarCarta(cartaJogada);
+                    chegou_final.copy(1);
+
+
+                }
+            });
+            
+            while(it_loop) {
+                if (chegou_final.getValor() == 1) break;
+            }
 
         }
-        int maiorForca = 0;
-        for (int forca : forcasVaza) {
-            if (forca > maiorForca) {
-                maiorForca = forca;
-            }
-        }
+        cartasMaoGUI.removeAllItems();
+
         List<Jogador> forcaMaxima = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            if (forcasVaza[i] == maiorForca) {
+            if (forcasVaza[i] == maiorForcaGUI.getValor()) {
                 forcaMaxima.add(jogadoresVaza[i]);
             }
         }
@@ -164,5 +250,50 @@ public class Rodada {
     public int getTentosMao() {
         return tentos_mao;
     }
+
+    void iniciarGUI() {
+        jg = new JLabel("jogador atual:");
+        jg.setFont(new Font("Arial", Font.PLAIN, 13));
+
+        jgAtual = new JLabel();
+        jgAtual.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        maiorcarta = new JLabel("maior carta: ");
+        maiorcarta.setFont(new Font("Arial", Font.BOLD, 12));
+
+        jogarCarta = new JButton("Jogar Carta");
+        pedirTruco = new JButton("Truco");
+
+        cartasMaoGUI = new JComboBox<>();
+        cartasMaoGUI.setSize(100, 100);
+        
+        painel = new JPanel(new GridBagLayout());
+        GridBagConstraints alinhamento = new GridBagConstraints();
+
+        alinhamento.gridx = 0;
+        alinhamento.gridy = 0;
+        alinhamento.insets = new Insets(10, 0, 10, 0);
+        painel.add(jg, alinhamento);
+
+        alinhamento.gridy = 1;
+        painel.add(jgAtual, alinhamento);
+
+        alinhamento.gridy = 2;
+        painel.add(maiorcarta, alinhamento);
+
+        alinhamento.gridy = 3;
+        painel.add(cartasMaoGUI, alinhamento);
+
+        alinhamento.gridy = 4;
+        painel.add(pedirTruco, alinhamento);
+
+        alinhamento.gridx = 1;
+        painel.add(jogarCarta, alinhamento);
+
+        frame.add(painel);
+        
+
+    }
+
 
 }

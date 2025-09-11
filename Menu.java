@@ -41,14 +41,6 @@ class MenuInterface {
     private JComboBox<Object> ldupla2;
 
     private JFrame frameQueda;
-    private JPanel painelQueda;
-    private JLabel j1;
-    private JLabel j2;
-    private JLabel j3;
-    private JLabel j4;
-    private JLabel jogo;
-    private JLabel tentos;
-    private GridBagConstraints alinhamentoQueda;
     private Queda queda;
 
     public MenuInterface() {
@@ -230,55 +222,8 @@ class MenuInterface {
 
         frameQueda = new JFrame("TRUCO");
         frameQueda.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-        painelQueda = new JPanel();
-        painelQueda.setLayout(new GridBagLayout());
-
-        j1 = new JLabel();
-        j2 = new JLabel();
-        j3 = new JLabel();
-        j4 = new JLabel();
-
-        j1.setFont(new Font("Arial", Font.PLAIN, 24));
-        j2.setFont(new Font("Arial", Font.PLAIN, 24));
-        j3.setFont(new Font("Arial", Font.PLAIN, 24));
-        j4.setFont(new Font("Arial", Font.PLAIN, 24));
-
-        //jogo = new JLabel("Jogos:  0x0");
-        //jogo.setSize(100, 100);
-
-        //tentos = new JLabel("Tentos 0x0");
-        //tentos.setSize(100, 100);
-
-        alinhamentoQueda = new GridBagConstraints();
-
-        
-
-        alinhamentoQueda.gridx = 0;
-        alinhamentoQueda.gridy = 0;
-        alinhamentoQueda.insets = new Insets(10, 0, 100, 0);
-        painelQueda.add(j1, alinhamentoQueda);
-
-        alinhamentoQueda.gridx = -1;
-        alinhamentoQueda.gridy = 1;
-        alinhamentoQueda.insets = new Insets(0, 0, 0, 200);
-        painelQueda.add(j2, alinhamentoQueda);
-
-        alinhamentoQueda.gridx = 1;
-        alinhamentoQueda.insets = new Insets(0, 200, 0, 0);
-        painelQueda.add(j3, alinhamentoQueda);
-
-
-        alinhamentoQueda.gridx = 0;
-        alinhamentoQueda.gridy = 2;
-        alinhamentoQueda.insets = new Insets(100, 0, 0, 0);
-        painelQueda.add(j4, alinhamentoQueda);
-
-        frameQueda.add(painelQueda);
         frameQueda.setSize(800, 800);
         frameQueda.setLocationRelativeTo(null);
-
-
 
         /* ================================= FUNCIONALIDADES ===================================== */
 
@@ -423,12 +368,8 @@ class MenuInterface {
     }
 
     void jogarQueda(Dupla dupla1, Dupla dupla2) {
-        queda = new Queda(dupla1, dupla2);
-        j1.setText(dupla1.getJ1().getNome() + "(" + dupla1.getQuedasG() + "x" + dupla1.getQuedasT() + ")");
-        j2.setText(dupla2.getJ1().getNome() + "(" + dupla2.getQuedasG() + "x" + dupla2.getQuedasT() + ")");
-        j3.setText(dupla2.getJ2().getNome() + "(" + dupla2.getQuedasG() + "x" + dupla2.getQuedasT() + ")");
-        j4.setText(dupla1.getJ2().getNome() + "(" + dupla1.getQuedasG() + "x" + dupla1.getQuedasT() + ")");
-         frameQueda.setVisible(true);
+        queda = new Queda(dupla1, dupla2, frameQueda);
+        
         queda.iniciarQueda();
         if(dupla1.getQuedasG() == 1) {
             JOptionPane.showMessageDialog(frameQueda, "Dupla 1 ganhou");

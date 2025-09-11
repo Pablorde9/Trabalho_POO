@@ -143,25 +143,36 @@ public class Rodada {
                 vitoriasD2++;
         }
 
+        // alguem fez 2 vazas
         if (vitoriasD1 >= 2)
             return dupla1;
         if (vitoriasD2 >= 2)
             return dupla2;
 
-        if (vazas[0] == 1 && vazas[1] == 0)
-            return dupla1;
-        if (vazas[0] == 2 && vazas[1] == 0)
-            return dupla2;
-        if (vazas[0] == 0 && vazas[1] == 1)
-            return dupla1;
-        if (vazas[0] == 0 && vazas[1] == 2)
-            return dupla2;
+        // testa empate
+        if (vazaAtual >= 2) {
+            // ganhou a primeira e empatou a segunda
+            if (vazas[0] == 1 && vazas[1] == 0)
+                return dupla1;
+            if (vazas[0] == 2 && vazas[1] == 0)
+                return dupla2;
 
-        if (vazaAtual == 3 && vitoriasD1 > vitoriasD2)
-            return dupla1;
-        if (vazaAtual == 3 && vitoriasD2 > vitoriasD1)
-            return dupla2;
+            // empatou a primeira e ganhou a segunda
+            if (vazas[0] == 0 && vazas[1] == 1)
+                return dupla1;
+            if (vazas[0] == 0 && vazas[1] == 2)
+                return dupla2;
+        }
 
+        // se tudo empatar quem ganhou a primeira ganha
+        if (vazaAtual == 3 && vitoriasD1 == 1 && vitoriasD2 == 1) {
+            if (vazas[0] == 1)
+                return dupla1;
+            if (vazas[0] == 2)
+                return dupla2;
+        }
+
+        // ainda nao decidiu
         return null;
     }
 

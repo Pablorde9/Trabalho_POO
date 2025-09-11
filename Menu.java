@@ -1,389 +1,247 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 class MenuInterface {
 
-    private JPanel painelMenu;
+    // Frames
     private JFrame frameMenu;
-    private GridBagConstraints alinhamentoMenu;
-
     private JFrame frameJogador;
-    private JPanel painelJogador;
-    private JButton novoJogador;
-    private JButton fecharJogador;
-    private JButton cadastrarJogador;
-    private JTextField novoJogadorTxt;
-    private JLabel novoJogadorLabel;
-    private GridBagConstraints alinhamentoJogador;
-    private Jogadores listaJogadores;
-
     private JFrame frameDupla;
-    private JPanel painelDupla;
-    private JButton novaDupla;
-    private GridBagConstraints alinhamentoDupla;
-    private JButton fecharDupla;
-    private JButton cadastrarDupla;
-    private JComboBox<Object> duplaJ1;
-    private JComboBox<Object> duplaJ2;
-    private JLabel novaDuplaLabel;
+    private JFrame frameJogoSetup;
+    private JFrame frameQueda;
+
+
+    private Jogadores listaJogadores;
     private Duplas listaDuplas;
 
-    private JFrame frameJogo;
-    private JPanel painelJogo;
-    private JButton novoJogo;
-    private JLabel novoJogoLabel;
-    private GridBagConstraints alinhamentoJogo;
-    private JButton fecharJogo;
-    private JButton iniciarJogo;
-    private JComboBox<Object> ldupla1;
-    private JComboBox<Object> ldupla2;
 
-    private JFrame frameQueda;
-    private Queda queda;
+    private JTextField novoJogadorTxt;
+    private JComboBox<Object> duplaJ1, duplaJ2; 
+
+
+    private JComboBox<Object> ldupla1, ldupla2; 
 
     public MenuInterface() {
+        listaJogadores = new Jogadores();
+        listaDuplas = new Duplas();
+        criarMenuPrincipal();
+        criarFrameCadastroJogador();
+        criarFrameCadastroDupla();
+        criarFrameNovoJogo();
+        criarFrameQueda();
+    }
 
-        /* ============================================ MENU GUI ===================================== */
+    public void exibirMenu() {
+        frameMenu.setVisible(true);
+    }
 
+
+    public void quedaTerminada() {
+        frameQueda.setVisible(false);
+        frameMenu.setVisible(true);
+    }
+
+    private void criarMenuPrincipal() {
         frameMenu = new JFrame("MENU");
         frameMenu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        novoJogador = new JButton("Cadastrar Jogador");
-        novaDupla = new JButton("Cadastrar Dupla");
-        novoJogo = new JButton("Iniciar Jogo");
-
-        novaDupla.setPreferredSize(new Dimension(novoJogador.getPreferredSize()));
-        novoJogo.setPreferredSize(new Dimension(novoJogador.getPreferredSize()));
-
-        painelMenu = new JPanel();
-        painelMenu.setLayout(new GridBagLayout());
-
-        alinhamentoMenu = new GridBagConstraints();
-        alinhamentoMenu.gridx = 0;
-        alinhamentoMenu.gridy = 0;
-        alinhamentoMenu.insets = new Insets(10, 0, 10, 0);
-
-        painelMenu.add(novoJogador, alinhamentoMenu);
-
-        alinhamentoMenu.gridy = 1;
-        alinhamentoMenu.insets = new Insets(0, 0, 10, 0);
-        painelMenu.add(novaDupla, alinhamentoMenu);
-
-        alinhamentoMenu.gridy = 2;
-        alinhamentoMenu.insets = new Insets(0, 0, 10, 0);
-        painelMenu.add(novoJogo, alinhamentoMenu);
-
-        frameMenu.add(painelMenu);
         frameMenu.setSize(300, 400);
         frameMenu.setLocationRelativeTo(null);
-        frameMenu.setVisible(true);
 
-        /* ==================================== NOVO JOGADOR GUI ==================================================*/
+        JPanel painelMenu = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(10, 0, 10, 0);
+        c.fill = GridBagConstraints.HORIZONTAL;
 
-        listaJogadores = new Jogadores();
+        JButton novoJogadorBtn = new JButton("Cadastrar Jogador");
+        novoJogadorBtn.addActionListener(e -> frameJogador.setVisible(true));
+        c.gridy = 0;
+        painelMenu.add(novoJogadorBtn, c);
 
+        JButton novaDuplaBtn = new JButton("Cadastrar Dupla");
+        novaDuplaBtn.addActionListener(e -> frameDupla.setVisible(true));
+        c.gridy = 1;
+        painelMenu.add(novaDuplaBtn, c);
+
+        JButton novoJogoBtn = new JButton("Iniciar Jogo");
+        novoJogoBtn.addActionListener(e -> frameJogoSetup.setVisible(true));
+        c.gridy = 2;
+        painelMenu.add(novoJogoBtn, c);
+
+        frameMenu.add(painelMenu);
+    }
+
+    private void criarFrameCadastroJogador() {
         frameJogador = new JFrame("Novo Jogador");
-        frameJogador.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-        novoJogadorLabel = new JLabel("Digite o nome do jogador:");
-
-        novoJogadorTxt = new JTextField(30);
-
-        fecharJogador = new JButton("Fechar");
-        cadastrarJogador = new JButton("Cadastrar");
-
-        painelJogador = new JPanel();
-        painelJogador.setLayout(new GridBagLayout());
-
-        alinhamentoJogador = new GridBagConstraints();
-        alinhamentoJogador.gridx = 0;
-        alinhamentoJogador.gridy = 0;
-        alinhamentoJogador.insets = new Insets(10, 0, 10, 0);
-
-        painelJogador.add(novoJogadorLabel, alinhamentoJogador);
-
-        alinhamentoJogador.gridy = 1;
-        alinhamentoJogador.insets = new Insets(0, 0, 10, 0);
-        painelJogador.add(novoJogadorTxt, alinhamentoJogador);
-
-        alinhamentoJogador.gridy = 2;
-        alinhamentoJogador.insets = new Insets(0, 0, 50, 0);
-
-        painelJogador.add(cadastrarJogador, alinhamentoJogador);
-
-        alinhamentoJogador.gridy = 3;
-        alinhamentoJogador.insets = new Insets(100, 0, 0, 0);
-        painelJogador.add(fecharJogador, alinhamentoJogador);
-
-        frameJogador.add(painelJogador);
         frameJogador.setSize(500, 400);
         frameJogador.setLocationRelativeTo(null);
+        frameJogador.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        /* ============================================ NOVA DUPLA GUI =============================================*/
+        JPanel painel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(10, 10, 10, 10);
 
-        listaDuplas = new Duplas();
+        painel.add(new JLabel("Digite o nome do jogador:"), c);
 
+        c.gridy = 1;
+        novoJogadorTxt = new JTextField(20);
+        painel.add(novoJogadorTxt, c);
+
+        c.gridy = 2;
+        JButton cadastrarBtn = new JButton("Cadastrar");
+        cadastrarBtn.addActionListener(e -> cadastrarJogador());
+        painel.add(cadastrarBtn, c);
+
+        frameJogador.add(painel);
+    }
+
+    private void cadastrarJogador() {
+        try {
+            if (novoJogadorTxt.getText().isEmpty())
+                throw new CampoVazioException("Digite um nome válido");
+
+            Jogador novoJogador = new Jogador(novoJogadorTxt.getText());
+            listaJogadores.add(novoJogador);
+
+            JOptionPane.showMessageDialog(frameJogador, "Jogador " + novoJogador.getNome() + " cadastrado!");
+
+   
+            duplaJ1.addItem(novoJogador);
+            duplaJ2.addItem(novoJogador);
+
+            novoJogadorTxt.setText("");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(frameJogador, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void criarFrameCadastroDupla() {
         frameDupla = new JFrame("Nova Dupla");
+        frameDupla.setSize(500, 400);
+        frameDupla.setLocationRelativeTo(null);
         frameDupla.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        novaDuplaLabel = new JLabel("Escolha os jogadores da Dupla:");
+        JPanel painel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(10, 10, 10, 10);
+
+        c.gridy = 0;
+        painel.add(new JLabel("Escolha os jogadores da dupla:"), c);
 
         duplaJ1 = new JComboBox<>();
         duplaJ1.addItem("Selecione o primeiro jogador");
-        duplaJ1.setPreferredSize(new Dimension(300, duplaJ1.getPreferredSize().height));
+        c.gridy = 1;
+        painel.add(duplaJ1, c);
 
         duplaJ2 = new JComboBox<>();
         duplaJ2.addItem("Selecione o segundo jogador");
-        duplaJ2.setPreferredSize(new Dimension(300, duplaJ2.getPreferredSize().height));
+        c.gridy = 2;
+        painel.add(duplaJ2, c);
 
-        cadastrarDupla = new JButton("Cadastrar");
-        fecharDupla = new JButton("Fechar");
+        JButton cadastrarBtn = new JButton("Cadastrar Dupla");
+        cadastrarBtn.addActionListener(e -> cadastrarDupla());
+        c.gridy = 3;
+        painel.add(cadastrarBtn, c);
 
-        painelDupla = new JPanel();
-        painelDupla.setLayout(new GridBagLayout());
+        frameDupla.add(painel);
+    }
 
-        alinhamentoDupla = new GridBagConstraints();
-        alinhamentoDupla.gridx = 0;
-        alinhamentoDupla.gridy = 0;
-        alinhamentoDupla.insets = new Insets(10, 0, 10, 0);
+    private void cadastrarDupla() {
+        try {
+            if (duplaJ1.getSelectedIndex() == 0 || duplaJ2.getSelectedIndex() == 0)
+                throw new CampoVazioException("Selecione dois jogadores.");
+            if (duplaJ1.getSelectedItem() == duplaJ2.getSelectedItem())
+                throw new MembroDuplicadoException("Os jogadores devem ser diferentes.");
 
-        painelDupla.add(novaDuplaLabel, alinhamentoDupla);
+            Jogador j1 = (Jogador) duplaJ1.getSelectedItem();
+            Jogador j2 = (Jogador) duplaJ2.getSelectedItem();
+            Dupla novaDupla = new Dupla(j1, j2);
+            listaDuplas.add(novaDupla);
 
-        alinhamentoDupla.gridy = 1;
-        alinhamentoDupla.insets = new Insets(0, 0, 10, 0);
-        painelDupla.add(duplaJ1, alinhamentoDupla);
+            JOptionPane.showMessageDialog(frameDupla, "Dupla " + novaDupla + " cadastrada!");
 
-        alinhamentoDupla.gridy = 2;
-        painelDupla.add(duplaJ2, alinhamentoDupla);
+            ldupla1.addItem(novaDupla);
+            ldupla2.addItem(novaDupla);
 
-        alinhamentoDupla.gridy = 3;
-        alinhamentoDupla.insets = new Insets(0, 0, 50, 0);
-        painelDupla.add(cadastrarDupla, alinhamentoDupla);
+            duplaJ1.setSelectedIndex(0);
+            duplaJ2.setSelectedIndex(0);
 
-        alinhamentoDupla.gridy = 4;
-        alinhamentoDupla.insets = new Insets(100, 0, 0, 0);
-        painelDupla.add(fecharDupla, alinhamentoDupla);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(frameDupla, "Erro: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-        frameDupla.add(painelDupla);
-        frameDupla.setSize(500, 400);
-        frameDupla.setLocationRelativeTo(null);
+    private void criarFrameNovoJogo() {
+        frameJogoSetup = new JFrame("Novo Jogo");
+        frameJogoSetup.setSize(500, 400);
+        frameJogoSetup.setLocationRelativeTo(null);
+        frameJogoSetup.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-        /* ============================================ NOVO JOGO GUI =============================================*/
+        JPanel painel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(10, 10, 10, 10);
 
-
-        frameJogo = new JFrame("Novo Jogo");
-        frameJogo.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
-        novoJogoLabel = new JLabel("Escolha as duplas que irao jogar:");
+        c.gridy = 0;
+        painel.add(new JLabel("Escolha as duplas que irão jogar:"), c);
 
         ldupla1 = new JComboBox<>();
         ldupla1.addItem("Selecione a primeira dupla");
-        ldupla1.setPreferredSize(new Dimension(300, ldupla1.getPreferredSize().height));
+        c.gridy = 1;
+        painel.add(ldupla1, c);
 
         ldupla2 = new JComboBox<>();
         ldupla2.addItem("Selecione a segunda dupla");
-        ldupla2.setPreferredSize(new Dimension(300, ldupla2.getPreferredSize().height));
+        c.gridy = 2;
+        painel.add(ldupla2, c);
 
-        iniciarJogo = new JButton("Iniciar");
-        fecharJogo = new JButton("Voltar");
+        JButton iniciarBtn = new JButton("INICIAR QUEDA");
+        iniciarBtn.addActionListener(e -> iniciarQueda());
+        c.gridy = 3;
+        painel.add(iniciarBtn, c);
 
-        painelJogo = new JPanel();
-        painelJogo.setLayout(new GridBagLayout());
-
-        alinhamentoJogo = new GridBagConstraints();
-        alinhamentoJogo.gridx = 0;
-        alinhamentoJogo.gridy = 0;
-        alinhamentoJogo.insets = new Insets(10, 0, 10, 0);
-
-        painelJogo.add(novoJogoLabel, alinhamentoJogo);
-
-        alinhamentoJogo.gridy = 1;
-        alinhamentoJogo.insets = new Insets(0, 0, 10, 0);
-        painelJogo.add(ldupla1, alinhamentoJogo);
-
-        alinhamentoJogo.gridy = 2;
-        painelJogo.add(ldupla2, alinhamentoJogo);
-
-        alinhamentoJogo.gridy = 3;
-        alinhamentoJogo.insets = new Insets(0, 0, 50, 0);
-        painelJogo.add(iniciarJogo, alinhamentoJogo);
-
-        alinhamentoJogo.gridy = 4;
-        alinhamentoJogo.insets = new Insets(100, 0, 0, 0);
-        painelJogo.add(fecharJogo, alinhamentoJogo);
-
-        frameJogo.add(painelJogo);
-        frameJogo.setSize(500, 400);
-        frameJogo.setLocationRelativeTo(null);
-
-        /* ============================================ QUEDA GUI =============================================*/
-
-        frameQueda = new JFrame("TRUCO");
-        frameQueda.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        frameQueda.setSize(800, 800);
-        frameQueda.setLocationRelativeTo(null);
-
-        /* ================================= FUNCIONALIDADES ===================================== */
-
-        novoJogador.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameJogador.setVisible(true);
-
-            }
-        });
-
-        fecharJogador.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameJogador.setVisible(false);
-
-            }
-        });
-
-        cadastrarJogador.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    campoVazio(novoJogadorTxt);
-                    String nomeJogador = novoJogadorTxt.getText();
-                    Jogador novoJogador = new Jogador(nomeJogador);
-                    listaJogadores.add(novoJogador);
-                    JOptionPane.showMessageDialog(frameJogador, "Jogador " + nomeJogador + " cadastrado com sucesso!");
-                    duplaJ1.addItem(novoJogador);
-                    duplaJ2.addItem(novoJogador);
-                } catch (CampoVazioException er) {
-                    JOptionPane.showMessageDialog(frameJogador, "Erro! " + er.getMessage());
-                } catch (CadastroRepetidoException er) {
-                    JOptionPane.showMessageDialog(frameJogador, "Erro! " + er.getMessage());
-                } finally {
-                    limpaCampo(novoJogadorTxt);
-                }
-
-            }
-        });
-
-        novaDupla.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameDupla.setVisible(true);
-
-            }
-        });
-
-        fecharDupla.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameDupla.setVisible(false);
-
-            }
-        });
-
-        cadastrarDupla.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    campoPlaceholder(duplaJ1, "primeiro");
-                    campoPlaceholder(duplaJ2, "segundo");
-                    membroDuplicado(duplaJ2, duplaJ1);
-                    Jogador jogador1 = (Jogador) duplaJ1.getSelectedItem();
-                    Jogador jogador2 = (Jogador) duplaJ2.getSelectedItem();
-                    Dupla dupla = new Dupla(jogador1, jogador2);
-                    listaDuplas.add(dupla);
-                    JOptionPane.showMessageDialog(frameDupla,
-                            "Dupla " + jogador1 + " e " + jogador2 + " cadastrada com sucesso!");
-                    ldupla1.addItem(dupla);
-                    ldupla2.addItem(dupla);
-                } catch (CampoVazioException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage());
-                } catch(MembroDuplicadoException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! Selecione jogadores diferentes");
-                } catch (CadastroRepetidoException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage() + " jogador");
-                } finally {
-                    voltaPlaceholder(duplaJ1);
-                    voltaPlaceholder(duplaJ2);
-                }
-
-            }
-        });
-
-        novoJogo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameJogo.setVisible(true);
-
-            }
-        });
-
-        fecharJogo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                frameJogo.setVisible(false);
-
-            }
-        });
-
-        iniciarJogo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    campoPlaceholder(ldupla1, "primeira");
-                    campoPlaceholder(ldupla2, "segunda");
-                    membroDuplicado(ldupla2, ldupla1);
-                    Dupla dupla1 = (Dupla) ldupla1.getSelectedItem();
-                    Dupla dupla2 = (Dupla) ldupla2.getSelectedItem();
-                    JOptionPane.showMessageDialog(frameDupla,
-                            "Duplas" + dupla1 + " e " + dupla2 + " irao jogar!");
-
-                    jogarQueda(dupla1, dupla2);
-                } catch (CampoVazioException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! " + er.getMessage() + " dupla");
-                } catch(MembroDuplicadoException er) {
-                    JOptionPane.showMessageDialog(frameDupla, "Erro! Selecione duplas diferentes");
-                } finally {
-                    voltaPlaceholder(ldupla1);
-                    voltaPlaceholder(ldupla2);
-                }
-
-            }
-        });
-
+        frameJogoSetup.add(painel);
     }
 
-    void limpaCampo(JTextField txt) {
-        txt.setText("");
-    }
+    private void iniciarQueda() {
+        try {
+            if (ldupla1.getSelectedIndex() == 0 || ldupla2.getSelectedIndex() == 0)
+                throw new CampoVazioException("Selecione duas duplas.");
+            if (ldupla1.getSelectedItem() == ldupla2.getSelectedItem())
+                throw new MembroDuplicadoException("As duplas devem ser diferentes.");
 
-    void campoVazio(JTextField txt) throws CampoVazioException {
-        if (txt.getText().isEmpty())
-            throw new CampoVazioException("Digite um nome valido");
-    }
+            Dupla d1 = (Dupla) ldupla1.getSelectedItem();
+            Dupla d2 = (Dupla) ldupla2.getSelectedItem();
 
-    // checa se o menu suspenso(JComboBox) esta no placeholder
-    void campoPlaceholder(JComboBox<Object> lista, String nmr) throws CampoVazioException {
-        if (lista.getSelectedIndex() == 0)
-            throw new CampoVazioException("Selecione a " + nmr);
-    }
+            frameMenu.setVisible(false);
+            frameJogoSetup.setVisible(false);
+            frameQueda.setVisible(true);
 
-    void membroDuplicado(JComboBox<Object> e1, JComboBox<Object> e2) throws MembroDuplicadoException {
-        if (e1.getSelectedItem().equals(e2.getSelectedItem())) throw new MembroDuplicadoException("");
-    }
+            Queda queda = new Queda(this, d1, d2, frameQueda);
+            queda.iniciarQueda();
 
-    void voltaPlaceholder(JComboBox<Object> lista) {
-        lista.setSelectedIndex(0);
-    }
-
-    void jogarQueda(Dupla dupla1, Dupla dupla2) {
-        queda = new Queda(dupla1, dupla2, frameQueda);
-        
-        queda.iniciarQueda();
-        if(dupla1.getQuedasG() == 1) {
-            JOptionPane.showMessageDialog(frameQueda, "Dupla 1 ganhou");
-        } else {
-            JOptionPane.showMessageDialog(frameQueda, "Dupla 2 ganhou");
-
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(frameJogoSetup, "Erro: " + ex.getMessage(), "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
-        
     }
 
+    private void criarFrameQueda() {
+        frameQueda = new JFrame("TRUCO");
+        frameQueda.setSize(800, 600);
+        frameQueda.setLocationRelativeTo(null);
+        frameQueda.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 }
+
 
 public class Menu {
     public static void main(String[] args) {
-        new MenuInterface();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                MenuInterface menu = new MenuInterface();
+                menu.exibirMenu();
+            }
+        });
     }
 }

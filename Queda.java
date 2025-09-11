@@ -1,43 +1,47 @@
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class Queda {
+    private MenuInterface menu;
     private Dupla d1;
     private Dupla d2;
-    private Jogo jogo;
     private JFrame frame;
 
-    public Queda(Dupla dupla1, Dupla dupla2, JFrame f) {
-        d1 = dupla1;
-        d2 = dupla2;
-        frame = f;
+    public Queda(MenuInterface menu, Dupla dupla1, Dupla dupla2, JFrame f) {
+        this.menu = menu;
+        this.d1 = dupla1;
+        this.d2 = dupla2;
+        this.frame = f;
     }
 
-    void iniciarQueda() {
-        zeraAcc();
-        jogo = new Jogo(d1, d2, frame);
-
-        while (d1.getjogos() < 2 && d2.getjogos() < 2) {
-            jogo.iniciarJogo();
-        }
-
-        if (d1.getjogos() == 2) {
-            this.attQuedas(d1, d2);
-        } else {
-            this.attQuedas(d2, d1);
-        }
-    }
-
-    void zeraAcc() {
+    public void iniciarQueda() {
         d1.zerarJogos();
         d2.zerarJogos();
+        iniciarNovoJogo();
     }
 
-    void attQuedas(Dupla ganhadora, Dupla perdedora) {
-        perdedora.attQuedas(false);
+    private void iniciarNovoJogo() {
+        Jogo jogo = new Jogo(this, d1, d2, frame);
+        jogo.iniciarJogo();
+    }
+
+
+    public void jogoTerminado() {
+
+        if (d1.getJogosVencidos() >= 2) {
+            finalizarQueda(d1, d2);
+        } else if (d2.getJogosVencidos() >= 2) {
+            finalizarQueda(d2, d1);
+        } else {
+            iniciarNovoJogo();
+        }
+    }
+
+    private void finalizarQueda(Dupla ganhadora, Dupla perdedora) {
         ganhadora.attQuedas(true);
+        perdedora.attQuedas(false);
+        JOptionPane.showMessageDialog(frame, "FIM DE QUEDA! Vencedor: " + ganhadora);
+        frame.setVisible(false);
+        menu.quedaTerminada();
     }
-    
-
-
-    
 }

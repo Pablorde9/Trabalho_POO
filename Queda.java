@@ -1,17 +1,16 @@
 public class Queda {
     private Dupla d1;
     private Dupla d2;
-    private Baralho baralho;
     private Jogo jogo;
+
     public Queda(Dupla dupla1, Dupla dupla2) {
         d1 = dupla1;
         d2 = dupla2;
-        baralho = new Baralho();
     }
 
     void iniciarQueda() {
         zeraAcc();
-        jogo = new Jogo(d1, d2, baralho);
+        jogo = new Jogo(d1, d2);
 
         while (d1.getjogos() < 2 && d2.getjogos() < 2) {
             jogo.iniciarJogo();

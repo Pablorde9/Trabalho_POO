@@ -6,19 +6,19 @@ public class Rodada {
     private Dupla dupla2;
     int[] vazas;
     private List<Jogador> ordemJogadores;
-    private Baralho baralho;
+    private Baralho baralho = new Baralho();
     int jogador_primeiro = 0;
     private int tentos_mao = 1; // tentos que a mao ta valendo
 
-    public Rodada(Dupla dupla1, Dupla dupla2, List<Jogador> ordemJogadores, Baralho baralho) {
+    public Rodada(Dupla dupla1, Dupla dupla2, List<Jogador> ordemJogadores) {
         this.dupla1 = dupla1;
         this.dupla2 = dupla2;
         this.ordemJogadores = ordemJogadores;
-        this.baralho = baralho;
         this.vazas = new int[3];
     }
 
     public void jogarRodada() {
+        baralho = new Baralho();
         distribuirCartas();
         for (int i = 0; i < 3; i++) {
             jogarVaza(i);
@@ -147,14 +147,22 @@ public class Rodada {
         if (vazas[0] == 2)
             return dupla2;
 
+        // empatou primeira e segunda, ganhou terceira
+        if(vazas[2] == 1) return dupla1;
+        if(vazas[2] == 2) return dupla2;
+
         // se empatou tudo
         if (vazas[0] == 0 && vazas[1] == 0 && vazas[2] == 0) {
             // o cara que abriu que ganha
             Jogador mao = this.ordemJogadores.get(0);
             return encontrarDupla(mao);
         }
-
+        
         return null; // se tudo der errado, tiver algum caso que nao cobri
+    }
+
+    public int getTentosMao() {
+        return tentos_mao;
     }
 
 }

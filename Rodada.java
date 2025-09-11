@@ -224,20 +224,26 @@ public class Rodada {
 
         jogarCarta.addActionListener(e -> processarJogada());
         pedirTruco.addActionListener(e -> {
-            int resposta = JOptionPane.showConfirmDialog(painelPrincipal,
+            if(dupla1.getTentos() == 10 || dupla2.getTentos() == 10) {
+                JOptionPane.showMessageDialog(painelPrincipal, encontrarDupla(ordemJogadores.get(jogadorVezIndice)).toString() + " pediu truco na mao de 10 e perdeu o jogo!");
+                jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)), (12 - encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)).getTentos()));
+            } else {
+                int resposta = JOptionPane.showConfirmDialog(painelPrincipal,
                     encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)) + ", aceita o TRUCO?",
                     "Pedido de Truco", JOptionPane.YES_NO_OPTION);
 
-            if (resposta == JOptionPane.YES_OPTION) {
-                if (tentosDaMao == 1)
-                    tentosDaMao = 3;
-                else
-                    tentosDaMao += 3;
-                JOptionPane.showMessageDialog(painelPrincipal, "Truco aceito! A mão vale " + tentosDaMao + " pontos.");
-            } else {
-                JOptionPane.showMessageDialog(painelPrincipal, "Truco recusado!");
-                jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get(jogadorVezIndice)), 1);
+                if (resposta == JOptionPane.YES_OPTION) {
+                    if (tentosDaMao == 1)
+                        tentosDaMao = 3;
+                    else
+                        tentosDaMao += 3;
+                    JOptionPane.showMessageDialog(painelPrincipal, "Truco aceito! A mão vale " + tentosDaMao + " pontos.");
+                } else {
+                    JOptionPane.showMessageDialog(painelPrincipal, "Truco recusado!");
+                    jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get(jogadorVezIndice)), tentosDaMao);
+                }
             }
+            
         });
     }
 }

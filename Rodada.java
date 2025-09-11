@@ -17,6 +17,8 @@ public class Rodada {
     private int jogadorVezIndice;
     private int tentosDaMao;
     private int[] vazas; // 0: Empate, 1: Dupla1, 2: Dupla2
+    private Dupla duplaQueTrucou; // controla quem ta trucando
+    private int valorPropostaTruco; // variavel para mudar o valor do botao de trucar
 
     // controle da vaza
     private List<Jogador> jogadoresDaVaza;
@@ -43,6 +45,8 @@ public class Rodada {
         this.tentosDaMao = 1;
         this.vazas = new int[3];
         this.vazaAtual = 0;
+        this.duplaQueTrucou = null;
+        this.valorPropostaTruco = 3;
 
         iniciarGUI();
         distribuirCartas();
@@ -169,11 +173,55 @@ public class Rodada {
         }
     }
 
+    private void atualizarBotaoTruco() {
+        Jogador jogadorAtual = ordemJogadores.get(jogadorVezIndice);
+        Dupla duplaAtual = encontrarDupla(jogadorAtual);
+
+        // checa se alguem ja trucou e se a mesma dupla ta trucando duas vezes
+        if (duplaQueTrucou == null || !duplaQueTrucou.equals(duplaAtual)) {
+            // checa se vai passar dos pontos pra vencer
+            int pontosParaVencerD1 = 12 - dupla1.getTentos();
+            int pontosParaVencerD2 = 12 - dupla2.getTentos();
+
+            // se o truco for passar nao pode trucar mais
+            if (tentosDaMao >= pontosParaVencerD1 || tentosDaMao >= pontosParaVencerD2) {
+                pedirTruco.setEnabled(false);
+                pedirTruco.setText("TRUCO");
+                return;
+            }
+
+            // se tudo der certo muda o valor para trucar
+            switch (valorPropostaTruco) {
+                case 3:
+                    pedirTruco.setText("TRUCO");
+                    break;
+                case 6:
+                    pedirTruco.setText("PEDIR 6");
+                    break;
+                case 9:
+                    pedirTruco.setText("PEDIR 9");
+                    break;
+                case 12:
+                    pedirTruco.setText("PEDIR 12");
+                    break;
+                default:
+                    // se for 12, desativa
+                    pedirTruco.setEnabled(false);
+                    return;
+            }
+            pedirTruco.setEnabled(true);
+        } else {
+            // nao pode trucar duas vezes
+            pedirTruco.setEnabled(false);
+        }
+    }
+
     // metodo que vai ser usado pelo jogo
     public JPanel getPainel() {
         return painelPrincipal;
     }
-    //--------------metodos graficos
+
+    // --------------metodos graficos
     private void atualizarInterfaceParaProximoJogador() {
         Jogador jogadorAtual = ordemJogadores.get(jogadorVezIndice);
         jogadorDaVezRot.setText("Vez de: " + jogadorAtual.getNome());
@@ -188,6 +236,7 @@ public class Rodada {
         for (Cartas c : jogadorAtual.getMao()) {
             cartasMaoGUI.addItem(c);
         }
+        atualizarBotaoTruco();
     }
 
     private void iniciarGUI() {
@@ -224,26 +273,53 @@ public class Rodada {
 
         jogarCarta.addActionListener(e -> processarJogada());
         pedirTruco.addActionListener(e -> {
-            if(dupla1.getTentos() == 10 || dupla2.getTentos() == 10) {
-                JOptionPane.showMessageDialog(painelPrincipal, encontrarDupla(ordemJogadores.get(jogadorVezIndice)).toString() + " pediu truco na mao de 10 e perdeu o jogo!");
-                jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)), (12 - encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)).getTentos()));
+            Dupla duplaTrucou = encontrarDupla(ordemJogadores.get(jogadorVezIndice));// o jogador que pede o truco eh o
+                                                                                     // atual
+            Dupla duplaAdv;
+            if (duplaTrucou == dupla1) {
+                duplaAdv = dupla2;
             } else {
-                int resposta = JOptionPane.showConfirmDialog(painelPrincipal,
-                    encontrarDupla(ordemJogadores.get((jogadorVezIndice + 1) % 4)) + ", aceita o TRUCO?",
-                    "Pedido de Truco", JOptionPane.YES_NO_OPTION);
+                duplaAdv = dupla1;
+            }
+            if (duplaTrucou.getTentos() >= 10) {
+                JOptionPane.showMessageDialog(painelPrincipal,
+                        duplaTrucou.toString() + " pediu truco na mão de dez e perdeu o jogo! :(");
+                int pontosParaVencer = 12 - duplaAdv.getTentos();
+                jogo.rodadaTerminada(duplaAdv, pontosParaVencer > 0 ? pontosParaVencer : 1);
+            } else {
+
+                String pergunta = "A dupla " + duplaAdv + " aceita o pedido de " + pedirTruco.getText() + "?";
+
+                int resposta = JOptionPane.showConfirmDialog(painelPrincipal, pergunta,
+                        "Pedido de " + pedirTruco.getText(), JOptionPane.YES_NO_OPTION);
 
                 if (resposta == JOptionPane.YES_OPTION) {
-                    if (tentosDaMao == 1)
-                        tentosDaMao = 3;
-                    else
-                        tentosDaMao += 3;
-                    JOptionPane.showMessageDialog(painelPrincipal, "Truco aceito! A mão vale " + tentosDaMao + " pontos.");
+                    tentosDaMao = valorPropostaTruco;
+                    duplaQueTrucou = duplaTrucou;
+
+                    if (valorPropostaTruco < 12) {
+                        valorPropostaTruco += 3;
+                    }
+
+                    JOptionPane.showMessageDialog(painelPrincipal,
+                            "Aceito! A mão agora vale " + tentosDaMao + " pontos.");
+                    atualizarBotaoTruco();
+
                 } else {
-                    JOptionPane.showMessageDialog(painelPrincipal, "Truco recusado!");
-                    jogo.rodadaTerminada(encontrarDupla(ordemJogadores.get(jogadorVezIndice)), tentosDaMao);
+                    // se recusar a dupla ganha os pontos da aposta anterior
+                    int pontosGanhos;
+                    if (tentosDaMao == 1) {
+                        pontosGanhos = 1;
+                    } else {
+                        pontosGanhos = valorPropostaTruco - 3;
+                    }
+
+                    JOptionPane.showMessageDialog(painelPrincipal,
+                            "Recusado! A dupla " + duplaTrucou
+                                    + " ganhou " + pontosGanhos + " pontos");
+                    jogo.rodadaTerminada(duplaTrucou, pontosGanhos);
                 }
             }
-            
         });
     }
 }

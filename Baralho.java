@@ -18,6 +18,10 @@ public class Baralho {
         Collections.shuffle(this.baralho);
     }
 
+    public Cartas comprarCarta() {
+        return this.baralho.remove(0);
+    }
+
     public void imprime() {
         System.out.println("--- Baralho ---");
         for (Cartas carta : baralho) {

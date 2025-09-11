@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.Vector;
+
 
 class Duplas {
     private Vector<Dupla> listaDuplas;
@@ -15,7 +16,6 @@ class Duplas {
                         "Dupla " + novaDupla.getJ1() + " e " + novaDupla.getJ2() + " ja esta cadastrada");
             }
         }
-        // else
         listaDuplas.add(novaDupla);
     }
 }
@@ -26,7 +26,7 @@ class Dupla {
     private int quedasT;
     private int tentos;
     private int quedasG;
-    private int jogos;
+    private int jogosVencidos;
 
     public Dupla(Jogador n1, Jogador n2) {
         j1 = n1;
@@ -34,7 +34,7 @@ class Dupla {
         quedasT = 0;
         quedasG = 0;
         tentos = 0;
-        jogos = 0;
+        jogosVencidos = 0;
     }
 
     public boolean contemJogador(Jogador jogador) {
@@ -44,8 +44,9 @@ class Dupla {
     void zerarTentos() {
         tentos = 0;
     }
+
     void zerarJogos() {
-        jogos = 0;
+        jogosVencidos = 0;
     }
 
     void incrementaTentos(int valor) {
@@ -53,13 +54,13 @@ class Dupla {
     }
 
     void incrementaJogos() {
-        jogos += 1;
+        jogosVencidos++;
     }
 
     void attQuedas(boolean ganha) {
-        quedasT += 1;
+        quedasT++;
         if (ganha)
-            quedasG += 1;
+            quedasG++;
     }
 
     Jogador getJ1() {
@@ -82,13 +83,12 @@ class Dupla {
         return tentos;
     }
 
-    public int getjogos() {
-        return jogos;
+    public int getJogosVencidos() {
+        return jogosVencidos;
     }
 
     @Override
     public String toString() {
-        return "[" + j1.getNome() + " e " + j2.getNome() + "]";
+        return j1.getNome() + " e " + j2.getNome();
     }
-
 }

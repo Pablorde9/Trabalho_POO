@@ -281,9 +281,9 @@ public class Rodada {
             } else {
                 duplaAdv = dupla1;
             }
-            if (duplaTrucou.getTentos() >= 10) {
+            if (duplaTrucou.getTentos() >= 10 || duplaAdv.getTentos() >= 10) {
                 JOptionPane.showMessageDialog(painelPrincipal,
-                        duplaTrucou.toString() + " pediu truco na mão de dez e perdeu o jogo! :(");
+                        duplaTrucou.toString() + " pediram truco na mão de dez e perdeu o jogo! :(");
                 int pontosParaVencer = 12 - duplaAdv.getTentos();
                 jogo.rodadaTerminada(duplaAdv, pontosParaVencer > 0 ? pontosParaVencer : 1);
             } else {

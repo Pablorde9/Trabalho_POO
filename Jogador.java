@@ -23,6 +23,21 @@ public class Jogador {
         return null;
     }
 
+    public Cartas maiorCarta() {
+        Cartas a = mao.get(0);
+        Cartas b = mao.get(1);
+        Cartas c = mao.get(2);
+        if (a.getForca() >= b.getForca() && a.getForca() >= c.getForca()) {
+            return a;
+        } else if (b.getForca() >= a.getForca() && b.getForca() >= c.getForca()) {
+            return b;
+
+        } else {
+            return c;
+        }
+
+    }
+
     public void limparMao() {
         this.mao.clear();
     }
